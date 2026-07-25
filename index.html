@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+<title>جاسمين | Jasmine — مساعدك الذكي المجاني</title>
+<meta name="description" content="جاسمين، مساعد ذكاء اصطناعي مجاني بالعربي والإنجليزي" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Tajawal:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,500&family=Inter:wght@400;500;600&family=Cairo:wght@700;800&family=Almarai:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink: #16241f;
+    --ink-2: #1e332c;
+    --ink-3: #24443b;
+    --petal: #f7f3e8;
+    --petal-dim: #cfc9b8;
+    --gold: #cba45c;
+    --gold-dim: #8a7442;
+    --sage: #8fae94;
+    --danger: #d98a7a;
+    --radius: 18px;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 800px at 15% -10%, #223b33 0%, transparent 60%),
+      radial-gradient(1000px 700px at 110% 10%, #1c3d34 0%, transparent 55%),
+      var(--ink);
+    color:var(--petal);
+    font-family:'Tajawal', 'Inter', sans-serif;
+    display:flex;
+    flex-direction:column;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  body.lang-en{ font-family:'Inter', 'Tajawal', sans-serif; }
+
+  .display-font{ font-family:'Aref Ruqaa', 'Cormorant Garamond', serif; }
+  body.lang-en .display-font{ font-family:'Cormorant Garamond', 'Aref Ruqaa', serif; }
+
+  /* ===== Header ===== */
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:16px 22px;
+    border-bottom:1px solid rgba(203,164,92,0.18);
+    backdrop-filter:blur(6px);
+    position:sticky;
+    top:0;
+    z-index:10;
+    background:rgba(22,36,31,0.72);
+  }
+  .brand{ display:flex; align-items:center; gap:12px; }
+  .brand .mark{ width:34px; height:34px; flex-shrink:0; }
+  .brand .name{ font-size:22px; letter-spacing:0.3px; }
+  .brand .name b{ color:var(--gold); font-weight:600; }
+  .brand .tagline{ font-size:11px; color:var(--sage); letter-spacing:0.5px; margin-top:2px; }
+
+  .header-actions{ display:flex; align-items:center; gap:8px; }
+  .icon-btn{
+    background:transparent;
+    border:1px solid rgba(203,164,92,0.35);
+    color:var(--petal-dim);
+    border-radius:999px;
+    padding:7px 14px;
+    font-size:13px;
+    cursor:pointer;
+    transition:all .2s ease;
+    font-family:inherit;
+  }
+  .icon-btn:hover{ border-color:var(--gold); color:var(--gold); background:rgba(203,164,92,0.08); }
+
+  /* ===== Petal bloom mark ===== */
+  .petal{ transform-origin:50% 50%; animation:bloom-in 1.1s cubic-bezier(.2,.9,.25,1) both; }
+  .petal:nth-child(1){ animation-delay:.02s; }
+  .petal:nth-child(2){ animation-delay:.08s; }
+  .petal:nth-child(3){ animation-delay:.14s; }
+  .petal:nth-child(4){ animation-delay:.20s; }
+  .petal:nth-child(5){ animation-delay:.26s; }
+  @keyframes bloom-in{
+    from{ transform:scale(0.2) rotate(-12deg); opacity:0; }
+    to{ transform:scale(1) rotate(0deg); opacity:1; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .petal{ animation:none; }
+  }
+
+  /* ===== Chat area ===== */
+  main{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    max-width:760px;
+    width:100%;
+    margin:0 auto;
+    padding:20px 16px 190px;
+  }
+
+  .empty-state{
+    margin:auto;
+    text-align:center;
+    color:var(--petal-dim);
+    padding:40px 20px;
+  }
+  .empty-state .mark-lg{ width:64px; height:64px; margin:0 auto 18px; opacity:.9; }
+  .empty-state h1{ font-size:30px; margin:0 0 8px; color:var(--petal); font-weight:600; }
+  .empty-state p{ font-size:14.5px; line-height:1.8; max-width:420px; margin:0 auto; }
+  .suggestions{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:22px; }
+  .chip{
+    border:1px solid rgba(203,164,92,0.3);
+    color:var(--petal-dim);
+    background:rgba(203,164,92,0.05);
+    padding:9px 16px;
+    border-radius:999px;
+    font-size:13px;
+    cursor:pointer;
+    transition:.2s;
+    font-family:inherit;
+  }
+  .chip:hover{ border-color:var(--gold); color:var(--gold); }
+
+  .msg{
+    display:flex;
+    margin-bottom:16px;
+    animation:rise .35s ease both;
+  }
+  @keyframes rise{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+  .msg.user{ justify-content:flex-start; }
+  [dir="rtl"] .msg.user{ justify-content:flex-start; }
+  .msg.assistant{ justify-content:flex-start; }
+
+  .bubble{
+    max-width:78%;
+    padding:13px 17px;
+    border-radius:var(--radius);
+    line-height:1.85;
+    font-size:15px;
+    white-space:pre-wrap;
+    word-break:break-word;
+  }
+  .msg.user .bubble{
+    background:linear-gradient(135deg, var(--gold), var(--gold-dim));
+    color:#1a1408;
+    border-bottom-left-radius:6px;
+    margin-inline-start:auto;
+  }
+  .msg.assistant .bubble{
+    background:var(--ink-2);
+    border:1px solid rgba(143,174,148,0.18);
+    border-bottom-right-radius:6px;
+  }
+  [dir="rtl"] .msg.user .bubble{ border-bottom-left-radius:6px; border-bottom-right-radius:var(--radius); margin-inline-start:auto; margin-inline-end:0;}
+  [dir="rtl"] .msg.assistant .bubble{ border-bottom-right-radius:6px; border-bottom-left-radius:var(--radius); }
+
+  .typing{ display:flex; gap:5px; padding:6px 4px; align-items:center; }
+  .typing span{
+    width:6px; height:6px; border-radius:50%;
+    background:var(--gold);
+    animation:blink 1.2s infinite ease-in-out;
+  }
+  .typing span:nth-child(2){ animation-delay:.18s; }
+  .typing span:nth-child(3){ animation-delay:.36s; }
+  @keyframes blink{ 0%,80%,100%{opacity:.25; transform:scale(.85);} 40%{opacity:1; transform:scale(1);} }
+
+  /* ===== Input bar ===== */
+  .input-wrap{
+    position:fixed;
+    bottom:0; left:0; right:0;
+    padding:16px;
+    background:linear-gradient(to top, var(--ink) 55%, transparent);
+  }
+  .input-bar{
+    max-width:760px;
+    margin:0 auto;
+    display:flex;
+    align-items:flex-end;
+    gap:10px;
+    background:var(--ink-2);
+    border:1px solid rgba(203,164,92,0.28);
+    border-radius:20px;
+    padding:10px 10px 10px 16px;
+  }
+  [dir="rtl"] .input-bar{ padding:10px 16px 10px 10px; }
+  .input-bar textarea{
+    flex:1;
+    background:transparent;
+    border:none;
+    outline:none;
+    resize:none;
+    color:var(--petal);
+    font-family:inherit;
+    font-size:15px;
+    line-height:1.6;
+    max-height:140px;
+    padding:6px 0;
+  }
+  .input-bar textarea::placeholder{ color:var(--petal-dim); opacity:.6; }
+  .send-btn{
+    width:40px; height:40px;
+    border-radius:50%;
+    border:none;
+    background:var(--gold);
+    color:#1a1408;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    transition:transform .15s ease, background .15s ease;
+  }
+  .send-btn:hover{ transform:scale(1.06); background:#dcb975; }
+  .send-btn:disabled{ opacity:.4; cursor:default; transform:none; }
+  .send-btn svg{ width:18px; height:18px; }
+  [dir="rtl"] .send-btn svg{ transform:scaleX(-1); }
+
+  .image-toggle{
+    width:40px; height:40px;
+    border-radius:50%;
+    border:1px solid rgba(203,164,92,0.35);
+    background:transparent;
+    color:var(--petal-dim);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    transition:all .18s ease;
+  }
+  .image-toggle svg{ width:18px; height:18px; }
+  .image-toggle:hover{ border-color:var(--gold); color:var(--gold); }
+  .image-toggle.active{
+    background:var(--gold);
+    border-color:var(--gold);
+    color:#1a1408;
+  }
+  .mode-banner{
+    max-width:760px;
+    margin:0 auto 10px;
+    display:none;
+    align-items:center;
+    gap:8px;
+    color:var(--gold);
+    font-size:12.5px;
+    padding:0 4px;
+  }
+  .mode-banner.show{ display:flex; }
+  .mode-banner svg{ width:14px; height:14px; }
+
+  /* ===== Image message card ===== */
+  .image-card{
+    max-width:320px;
+    border-radius:var(--radius);
+    overflow:hidden;
+    background:var(--ink-2);
+    border:1px solid rgba(203,164,92,0.22);
+  }
+  .image-card .frame{
+    position:relative;
+    width:100%;
+    aspect-ratio:1/1;
+    background:linear-gradient(120deg, var(--ink-3) 25%, #2c4e44 37%, var(--ink-3) 63%);
+    background-size:400% 100%;
+    animation:shimmer 1.6s ease-in-out infinite;
+  }
+  @keyframes shimmer{ 0%{background-position:100% 0;} 100%{background-position:0 0;} }
+  .image-card img{
+    width:100%; height:100%;
+    object-fit:cover;
+    display:block;
+    opacity:0;
+    transition:opacity .4s ease;
+  }
+  .image-card img.loaded{ opacity:1; }
+  .image-card .frame.loaded{ animation:none; background:none; }
+  .image-card .meta{
+    padding:10px 13px 12px;
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:8px;
+  }
+  .image-card .prompt-text{
+    font-size:12px;
+    color:var(--petal-dim);
+    line-height:1.6;
+    flex:1;
+  }
+  .image-card .dl-btn{
+    flex-shrink:0;
+    width:28px; height:28px;
+    border-radius:50%;
+    border:1px solid rgba(203,164,92,0.3);
+    background:transparent;
+    color:var(--gold);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-decoration:none;
+  }
+  .image-card .dl-btn svg{ width:14px; height:14px; }
+  .image-card .err-state{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    gap:8px;
+    color:var(--petal-dim);
+    font-size:12px;
+    padding:16px;
+    text-align:center;
+  }
+  .image-card .retry-btn{
+    border:1px solid rgba(203,164,92,0.4);
+    background:transparent;
+    color:var(--gold);
+    padding:5px 14px;
+    border-radius:999px;
+    font-size:12px;
+    cursor:pointer;
+    font-family:inherit;
+  }
+
+  .disclaimer{
+    text-align:center;
+    font-size:11px;
+    color:var(--petal-dim);
+    opacity:.55;
+    margin-top:10px;
+  }
+
+  .error-banner{
+    max-width:760px;
+    margin:0 auto 14px;
+    background:rgba(217,138,122,0.12);
+    border:1px solid rgba(217,138,122,0.4);
+    color:#f0b8ab;
+    padding:10px 14px;
+    border-radius:12px;
+    font-size:13px;
+  }
+
+  /* ===== Footer (site credit) ===== */
+  .site-footer{
+    margin-top:12px;
+    text-align:center;
+    direction:rtl;
+    unicode-bidi:plain-text;
+    font-family:'Cairo', 'Almarai', 'Tajawal', sans-serif;
+    font-weight:800;
+    font-size:clamp(11px, 2.6vw, 13.5px);
+    line-height:1.9;
+    padding:0 10px;
+
+    background:linear-gradient(90deg, #cba45c, #f7f3e8, #8fae94, #cba45c, #f7f3e8);
+    background-size:300% auto;
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    color:transparent;
+
+    animation:
+      footerGradient 7s linear infinite,
+      footerWave 4.5s ease-in-out infinite;
+    transform-origin:50% 100%;
+    will-change:transform, background-position;
+  }
+  @keyframes footerGradient{
+    0%{ background-position:0% 50%; }
+    100%{ background-position:300% 50%; }
+  }
+  @keyframes footerWave{
+    0%, 100%{ transform:translateY(0) skewX(0deg); }
+    25%{ transform:translateY(-2px) skewX(0.6deg); }
+    50%{ transform:translateY(0.5px) skewX(0deg); }
+    75%{ transform:translateY(2px) skewX(-0.6deg); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .site-footer{ animation:footerGradient 7s linear infinite; }
+  }
+
+  ::-webkit-scrollbar{ width:8px; }
+  ::-webkit-scrollbar-thumb{ background:rgba(203,164,92,0.25); border-radius:8px; }
+
+  @media (max-width:480px){
+    .brand .name{ font-size:19px; }
+    .empty-state h1{ font-size:24px; }
+    .bubble{ max-width:88%; font-size:14.5px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <svg class="mark" viewBox="0 0 100 100" fill="none">
+      <g>
+        <ellipse class="petal" cx="50" cy="28" rx="12" ry="20" fill="var(--petal)" opacity="0.95"/>
+        <ellipse class="petal" cx="72" cy="42" rx="12" ry="20" fill="var(--petal)" opacity="0.9" transform="rotate(72 72 42)"/>
+        <ellipse class="petal" cx="64" cy="68" rx="12" ry="20" fill="var(--petal)" opacity="0.85" transform="rotate(144 64 68)"/>
+        <ellipse class="petal" cx="36" cy="68" rx="12" ry="20" fill="var(--petal)" opacity="0.85" transform="rotate(216 36 68)"/>
+        <ellipse class="petal" cx="28" cy="42" rx="12" ry="20" fill="var(--petal)" opacity="0.9" transform="rotate(288 28 42)"/>
+        <circle cx="50" cy="50" r="8" fill="var(--gold)"/>
+      </g>
+    </svg>
+    <div>
+      <div class="name display-font" id="brandName"><b>جاسمين</b> Jasmine</div>
+      <div class="tagline" id="tagline">مساعد ذكاء اصطناعي مجاني</div>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="icon-btn" id="clearBtn">مسح المحادثة</button>
+    <button class="icon-btn" id="langBtn">EN</button>
+  </div>
+</header>
+
+<main id="main">
+  <div class="empty-state" id="emptyState">
+    <svg class="mark-lg" viewBox="0 0 100 100" fill="none">
+      <ellipse cx="50" cy="28" rx="12" ry="20" fill="var(--sage)" opacity="0.5"/>
+      <ellipse cx="72" cy="42" rx="12" ry="20" fill="var(--sage)" opacity="0.45" transform="rotate(72 72 42)"/>
+      <ellipse cx="64" cy="68" rx="12" ry="20" fill="var(--sage)" opacity="0.4" transform="rotate(144 64 68)"/>
+      <ellipse cx="36" cy="68" rx="12" ry="20" fill="var(--sage)" opacity="0.4" transform="rotate(216 36 68)"/>
+      <ellipse cx="28" cy="42" rx="12" ry="20" fill="var(--sage)" opacity="0.45" transform="rotate(288 28 42)"/>
+      <circle cx="50" cy="50" r="8" fill="var(--gold)"/>
+    </svg>
+    <h1 class="display-font" id="emptyTitle">أهلاً، كيف أقدر أساعدك؟</h1>
+    <p id="emptySub">اسأليني أي شيء بالعربي أو الإنجليزي — أنا هنا للمساعدة.</p>
+    <div class="suggestions" id="suggestions"></div>
+  </div>
+  <div id="messages"></div>
+  <div id="errorBanner"></div>
+</main>
+
+<div class="input-wrap">
+  <div class="mode-banner" id="modeBanner">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+    <span id="modeBannerText">وضع إنشاء الصور مفعّل — صف الصورة اللي تبيها</span>
+  </div>
+  <div class="input-bar">
+    <button class="image-toggle" id="imageToggle" aria-label="Image mode" title="إنشاء صورة">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+    </button>
+    <textarea id="input" rows="1" placeholder="اكتب رسالتك هنا…"></textarea>
+    <button class="send-btn" id="sendBtn" aria-label="Send">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="22" y1="2" x2="11" y2="13"></line>
+        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+      </svg>
+    </button>
+  </div>
+  <div class="disclaimer" id="disclaimer">قد تُخطئ جاسمين أحياناً — تحققي من المعلومات المهمة</div>
+  <p class="site-footer">بكل فخر، تم التطوير بواسطة الخبير التقني: عتيق الجذوة وعبدالمجيد الجهمي<br>رقم التواصل: 967779339333+<br>جميع الحقوق محفوظة ©</p>
+</div>
+
+<script>
+(function(){
+  const STORAGE_KEY = 'jasmine_chat_history_v1';
+  const LANG_KEY = 'jasmine_lang';
+
+  const STRINGS = {
+    ar: {
+      dir: 'rtl', htmlLang: 'ar',
+      tagline: 'مساعد ذكاء اصطناعي مجاني',
+      clear: 'مسح المحادثة',
+      langBtn: 'EN',
+      emptyTitle: 'أهلاً، كيف أقدر أساعدك؟',
+      emptySub: 'اسأليني أي شيء بالعربي أو الإنجليزي — أنا هنا للمساعدة.',
+      placeholder: 'اكتب رسالتك هنا…',
+      imagePlaceholder: 'صف الصورة اللي تبيها…',
+      disclaimer: 'قد تُخطئ جاسمين أحياناً — تحققي من المعلومات المهمة',
+      chips: ['لخّص لي فكرة بسيطة', 'اقترح خطة يومي', 'ساعدني بكتابة رسالة', 'اشرح لي مفهوم معقّد'],
+      imageToggleTitle: 'إنشاء صورة',
+      modeBannerText: 'وضع إنشاء الصور مفعّل — صف الصورة اللي تبيها',
+      generating: 'جارِ رسم الصورة…',
+      imageFailed: 'تعذّر إنشاء الصورة',
+      retry: 'إعادة المحاولة',
+      download: 'تحميل',
+      errorGeneric: 'صار خطأ، حاول مرة ثانية.',
+      errorBusy: 'الخدمة مزدحمة حالياً، حاول بعد دقيقة.',
+      confirmClear: 'مسح كل المحادثة؟'
+    },
+    en: {
+      dir: 'ltr', htmlLang: 'en',
+      tagline: 'Free multilingual AI assistant',
+      clear: 'Clear chat',
+      langBtn: 'AR',
+      emptyTitle: 'Hi, how can I help?',
+      emptySub: "Ask me anything in Arabic or English — I'm here to help.",
+      placeholder: 'Type your message…',
+      imagePlaceholder: 'Describe the image you want…',
+      disclaimer: 'Jasmine can make mistakes — check important info',
+      chips: ['Summarize an idea', 'Plan my day', 'Help me write a message', 'Explain a hard concept'],
+      imageToggleTitle: 'Create image',
+      modeBannerText: 'Image mode is on — describe the image you want',
+      generating: 'Painting your image…',
+      imageFailed: 'Could not create the image',
+      retry: 'Retry',
+      download: 'Download',
+      errorGeneric: 'Something went wrong, please try again.',
+      errorBusy: 'Service is busy right now, try again in a minute.',
+      confirmClear: 'Clear the whole conversation?'
+    }
+  };
+
+  function pollinationsUrl(prompt, seed){
+    const base = 'https://image.pollinations.ai/prompt/' + encodeURIComponent(prompt);
+    const params = new URLSearchParams({ width: '1024', height: '1024', nologo: 'true', seed: String(seed) });
+    return base + '?' + params.toString();
+  }
+
+  let lang = localStorage.getItem(LANG_KEY) || 'ar';
+  let imageMode = false;
+  let history = [];
+  try { history = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch(e){ history = []; }
+
+  const $ = (id) => document.getElementById(id);
+  const body = document.body;
+  const messagesEl = $('messages');
+  const emptyState = $('emptyState');
+  const input = $('input');
+  const sendBtn = $('sendBtn');
+  const errorBanner = $('errorBanner');
+  const imageToggle = $('imageToggle');
+  const modeBanner = $('modeBanner');
+
+  function applyLang(){
+    const s = STRINGS[lang];
+    document.documentElement.lang = s.htmlLang;
+    document.documentElement.dir = s.dir;
+    body.classList.toggle('lang-en', lang === 'en');
+    $('tagline').textContent = s.tagline;
+    $('clearBtn').textContent = s.clear;
+    $('langBtn').textContent = s.langBtn;
+    $('emptyTitle').textContent = s.emptyTitle;
+    $('emptySub').textContent = s.emptySub;
+    input.placeholder = imageMode ? s.imagePlaceholder : s.placeholder;
+    $('disclaimer').textContent = s.disclaimer;
+    imageToggle.title = s.imageToggleTitle;
+    $('modeBannerText').textContent = s.modeBannerText;
+    const sugg = $('suggestions');
+    sugg.innerHTML = '';
+    s.chips.forEach(c => {
+      const b = document.createElement('button');
+      b.className = 'chip';
+      b.textContent = c;
+      b.onclick = () => { input.value = c; input.focus(); autoGrow(); };
+      sugg.appendChild(b);
+    });
+  }
+
+  function autoGrow(){
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 140) + 'px';
+  }
+
+  function renderMessages(){
+    messagesEl.innerHTML = '';
+    emptyState.style.display = history.length ? 'none' : 'flex';
+    history.forEach(m => {
+      if (m.type === 'image') appendImageBubble(m.role, m.prompt, m.url, false);
+      else appendBubble(m.role, m.content, false);
+    });
+    window.scrollTo(0, document.body.scrollHeight);
+  }
+
+  function appendBubble(role, content, scroll){
+    emptyState.style.display = 'none';
+    const wrap = document.createElement('div');
+    wrap.className = 'msg ' + role;
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.textContent = content;
+    wrap.appendChild(bubble);
+    messagesEl.appendChild(wrap);
+    if (scroll !== false) window.scrollTo(0, document.body.scrollHeight);
+    return bubble;
+  }
+
+  function appendImageBubble(role, prompt, url, scroll){
+    emptyState.style.display = 'none';
+    const s = STRINGS[lang];
+    const wrap = document.createElement('div');
+    wrap.className = 'msg ' + role;
+
+    const card = document.createElement('div');
+    card.className = 'image-card';
+
+    const frame = document.createElement('div');
+    frame.className = 'frame';
+
+    const img = document.createElement('img');
+    img.alt = prompt || '';
+    img.loading = 'lazy';
+
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    const promptText = document.createElement('div');
+    promptText.className = 'prompt-text';
+    promptText.textContent = prompt || '';
+    const dlBtn = document.createElement('a');
+    dlBtn.className = 'dl-btn';
+    dlBtn.title = s.download;
+    dlBtn.target = '_blank';
+    dlBtn.rel = 'noopener';
+    dlBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
+    meta.appendChild(promptText);
+    meta.appendChild(dlBtn);
+
+    function attemptLoad(){
+      frame.classList.remove('loaded');
+      const errEl = frame.querySelector('.err-state');
+      if (errEl) errEl.remove();
+      img.classList.remove('loaded');
+      img.src = url;
+      dlBtn.href = url;
+    }
+
+    img.onload = () => {
+      frame.classList.add('loaded');
+      img.classList.add('loaded');
+      window.scrollTo(0, document.body.scrollHeight);
+    };
+    img.onerror = () => {
+      frame.classList.add('loaded');
+      const errEl = document.createElement('div');
+      errEl.className = 'err-state';
+      errEl.innerHTML = '<span>' + s.imageFailed + '</span>';
+      const retryBtn = document.createElement('button');
+      retryBtn.className = 'retry-btn';
+      retryBtn.textContent = s.retry;
+      retryBtn.onclick = attemptLoad;
+      errEl.appendChild(retryBtn);
+      frame.appendChild(errEl);
+    };
+
+    frame.appendChild(img);
+    card.appendChild(frame);
+    card.appendChild(meta);
+    wrap.appendChild(card);
+    messagesEl.appendChild(wrap);
+
+    attemptLoad();
+    if (scroll !== false) window.scrollTo(0, document.body.scrollHeight);
+    return card;
+  }
+
+  function appendGeneratingBubble(){
+    const s = STRINGS[lang];
+    const wrap = document.createElement('div');
+    wrap.className = 'msg assistant';
+    wrap.id = 'generatingIndicator';
+    const card = document.createElement('div');
+    card.className = 'image-card';
+    card.innerHTML = '<div class="frame"></div><div class="meta"><div class="prompt-text">' + s.generating + '</div></div>';
+    wrap.appendChild(card);
+    messagesEl.appendChild(wrap);
+    window.scrollTo(0, document.body.scrollHeight);
+  }
+  function removeGeneratingBubble(){
+    const t = $('generatingIndicator');
+    if (t) t.remove();
+  }
+
+  function showTyping(){
+    const wrap = document.createElement('div');
+    wrap.className = 'msg assistant';
+    wrap.id = 'typingIndicator';
+    wrap.innerHTML = '<div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div>';
+    messagesEl.appendChild(wrap);
+    window.scrollTo(0, document.body.scrollHeight);
+  }
+  function hideTyping(){
+    const t = $('typingIndicator');
+    if (t) t.remove();
+  }
+
+  function showError(msg){
+    errorBanner.innerHTML = '<div class="error-banner">' + msg + '</div>';
+    setTimeout(() => { errorBanner.innerHTML = ''; }, 6000);
+  }
+
+  function persist(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+  }
+
+  function pushImageResult(prompt){
+    const seed = Math.floor(Math.random() * 1000000);
+    const url = pollinationsUrl(prompt, seed);
+    history.push({ role: 'assistant', type: 'image', prompt, url, seed });
+    persist();
+    removeGeneratingBubble();
+    appendImageBubble('assistant', prompt, url);
+  }
+
+  async function send(){
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+    autoGrow();
+    sendBtn.disabled = true;
+
+    const wasImageMode = imageMode;
+    history.push({ role: 'user', content: text });
+    persist();
+    appendBubble('user', text);
+
+    if (wasImageMode) appendGeneratingBubble();
+    else showTyping();
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: history, mode: wasImageMode ? 'image' : 'chat' })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        hideTyping();
+        removeGeneratingBubble();
+        showError(res.status === 429 ? STRINGS[lang].errorBusy : (data.error || STRINGS[lang].errorGeneric));
+        sendBtn.disabled = false;
+        return;
+      }
+
+      if (data.type === 'image') {
+        hideTyping();
+        pushImageResult(data.prompt);
+      } else {
+        hideTyping();
+        removeGeneratingBubble();
+        history.push({ role: 'assistant', content: data.reply });
+        persist();
+        appendBubble('assistant', data.reply);
+      }
+    } catch (err) {
+      hideTyping();
+      removeGeneratingBubble();
+      showError(STRINGS[lang].errorGeneric);
+    }
+    sendBtn.disabled = false;
+    input.focus();
+  }
+
+  sendBtn.addEventListener('click', send);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      send();
+    }
+  });
+  input.addEventListener('input', autoGrow);
+
+  $('clearBtn').addEventListener('click', () => {
+    if (confirm(STRINGS[lang].confirmClear)) {
+      history = [];
+      persist();
+      renderMessages();
+    }
+  });
+
+  $('langBtn').addEventListener('click', () => {
+    lang = lang === 'ar' ? 'en' : 'ar';
+    localStorage.setItem(LANG_KEY, lang);
+    applyLang();
+  });
+
+  imageToggle.addEventListener('click', () => {
+    imageMode = !imageMode;
+    imageToggle.classList.toggle('active', imageMode);
+    modeBanner.classList.toggle('show', imageMode);
+    input.placeholder = imageMode ? STRINGS[lang].imagePlaceholder : STRINGS[lang].placeholder;
+    input.focus();
+  });
+
+  applyLang();
+  renderMessages();
+})();
+</script>
+</body>
+</html>
