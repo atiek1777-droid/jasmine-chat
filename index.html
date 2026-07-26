@@ -140,9 +140,16 @@
     border-radius:var(--radius);
     line-height:1.85;
     font-size:15px;
-    white-space:pre-wrap;
     word-break:break-word;
   }
+  .bubble p{ margin:0 0 10px; white-space:pre-wrap; }
+  .bubble p:last-child{ margin-bottom:0; }
+  .bubble ul, .bubble ol{ margin:0 0 10px; padding-inline-start:22px; }
+  .bubble ul:last-child, .bubble ol:last-child{ margin-bottom:0; }
+  .bubble li{ margin-bottom:5px; }
+  .bubble li:last-child{ margin-bottom:0; }
+  .bubble strong{ color:var(--gold); font-weight:700; }
+  .msg.user .bubble p{ white-space:pre-wrap; }
   .msg.user .bubble{
     background:linear-gradient(135deg, var(--gold), var(--gold-dim));
     color:#1a1408;
@@ -156,6 +163,38 @@
   }
   [dir="rtl"] .msg.user .bubble{ border-bottom-left-radius:6px; border-bottom-right-radius:var(--radius); margin-inline-start:auto; margin-inline-end:0;}
   [dir="rtl"] .msg.assistant .bubble{ border-bottom-right-radius:6px; border-bottom-left-radius:var(--radius); }
+
+  /* ===== Message actions toolbar ===== */
+  .msg-actions{
+    display:flex;
+    gap:4px;
+    margin-top:6px;
+    padding-inline-start:4px;
+  }
+  .msg-actions button, .msg-actions a{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:30px; height:30px;
+    border-radius:50%;
+    border:none;
+    background:transparent;
+    color:var(--petal-dim);
+    cursor:pointer;
+    transition:all .15s ease;
+    text-decoration:none;
+  }
+  .msg-actions button:hover, .msg-actions a:hover{ background:rgba(203,164,92,0.12); color:var(--gold); }
+  .msg-actions button.active-like{ color:#8fae94; }
+  .msg-actions button.active-like svg{ fill:#8fae94; }
+  .msg-actions svg{ width:15px; height:15px; }
+  .msg-actions .copied-tag{
+    font-size:11px;
+    color:var(--sage);
+    align-self:center;
+    padding:0 4px;
+    animation:rise .2s ease both;
+  }
 
   .typing{ display:flex; gap:5px; padding:6px 4px; align-items:center; }
   .typing span{
@@ -343,43 +382,71 @@
     font-size:13px;
   }
 
-  /* ===== Footer (site credit) ===== */
+  /* ===== Footer (site credit) — Yemen-flag animated news ticker ===== */
   .site-footer{
-    margin-top:12px;
-    text-align:center;
+    margin-top:10px;
+    overflow:hidden;
+  }
+  .ticker-row{
+    overflow:hidden;
+    white-space:nowrap;
+    padding:3px 0;
+    -webkit-mask-image:linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    mask-image:linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  }
+  .ticker-track{
+    display:inline-flex;
+    align-items:center;
+    gap:56px;
+    animation:tickerScroll 18s linear infinite;
+    will-change:transform;
+  }
+  .ticker-row:nth-child(2) .ticker-track{ animation-duration:21s; }
+  .ticker-text{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    flex-shrink:0;
     direction:rtl;
-    unicode-bidi:plain-text;
     font-family:'Cairo', 'Almarai', 'Tajawal', sans-serif;
     font-weight:800;
-    font-size:clamp(11px, 2.6vw, 13.5px);
-    line-height:1.9;
-    padding:0 10px;
+    font-size:clamp(11px, 2.6vw, 13px);
 
-    background:linear-gradient(90deg, #cba45c, #f7f3e8, #8fae94, #cba45c, #f7f3e8);
+    background:linear-gradient(90deg, #ce1126, #ffffff, #3a3a3a, #ce1126, #ffffff, #3a3a3a);
     background-size:300% auto;
     -webkit-background-clip:text;
     background-clip:text;
     -webkit-text-fill-color:transparent;
     color:transparent;
+    -webkit-text-stroke:0.35px rgba(247,243,232,0.4);
 
-    animation:
-      footerGradient 7s linear infinite,
-      footerWave 4.5s ease-in-out infinite;
-    transform-origin:50% 100%;
-    will-change:transform, background-position;
+    animation:footerGradient 5s linear infinite, footerWave 3.2s ease-in-out infinite;
+  }
+  .ticker-text a{
+    -webkit-text-fill-color:transparent;
+    color:transparent;
+    background:inherit;
+    -webkit-background-clip:text;
+    background-clip:text;
+    text-decoration:none;
+    pointer-events:auto;
+    border-bottom:1px dashed rgba(247,243,232,0.35);
+  }
+  @keyframes tickerScroll{
+    0%{ transform:translateX(0); }
+    100%{ transform:translateX(-50%); }
   }
   @keyframes footerGradient{
     0%{ background-position:0% 50%; }
     100%{ background-position:300% 50%; }
   }
   @keyframes footerWave{
-    0%, 100%{ transform:translateY(0) skewX(0deg); }
-    25%{ transform:translateY(-2px) skewX(0.6deg); }
-    50%{ transform:translateY(0.5px) skewX(0deg); }
-    75%{ transform:translateY(2px) skewX(-0.6deg); }
+    0%, 100%{ transform:translateY(0); }
+    50%{ transform:translateY(-2px); }
   }
   @media (prefers-reduced-motion: reduce){
-    .site-footer{ animation:footerGradient 7s linear infinite; }
+    .ticker-track{ animation:none; }
+    .ticker-text{ animation:footerGradient 5s linear infinite; }
   }
 
   ::-webkit-scrollbar{ width:8px; }
@@ -453,7 +520,20 @@
     </button>
   </div>
   <div class="disclaimer" id="disclaimer">قد تُخطئ جاسمين أحياناً — تحققي من المعلومات المهمة</div>
-  <p class="site-footer">بكل فخر، تم التطوير بواسطة الخبير التقني: عتيق الجذوة وعبدالمجيد الجهمي<br>رقم التواصل: 967779339333+<br>جميع الحقوق محفوظة ©</p>
+  <div class="site-footer">
+    <div class="ticker-row">
+      <div class="ticker-track">
+        <span class="ticker-text">بكل فخر، تم التطوير بواسطة الخبير التقني: عتيق الجذوة وعبدالمجيد الجهمي 🌸 جميع الحقوق محفوظة ©</span>
+        <span class="ticker-text" aria-hidden="true">بكل فخر، تم التطوير بواسطة الخبير التقني: عتيق الجذوة وعبدالمجيد الجهمي 🌸 جميع الحقوق محفوظة ©</span>
+      </div>
+    </div>
+    <div class="ticker-row">
+      <div class="ticker-track">
+        <span class="ticker-text">📱 تواصل واتساب — عتيق: <a href="https://wa.me/967779339333" target="_blank" rel="noopener" dir="ltr">967 779 339 333+</a> &nbsp;•&nbsp; عبدالمجيد: <a href="https://wa.me/491787558762" target="_blank" rel="noopener" dir="ltr">49 178 7558762+</a></span>
+        <span class="ticker-text" aria-hidden="true">📱 تواصل واتساب — عتيق: <a href="https://wa.me/967779339333" target="_blank" rel="noopener" dir="ltr">967 779 339 333+</a> &nbsp;•&nbsp; عبدالمجيد: <a href="https://wa.me/491787558762" target="_blank" rel="noopener" dir="ltr">49 178 7558762+</a></span>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -481,7 +561,15 @@
       download: 'تحميل',
       errorGeneric: 'صار خطأ، حاول مرة ثانية.',
       errorBusy: 'الخدمة مزدحمة حالياً، حاول بعد دقيقة.',
-      confirmClear: 'مسح كل المحادثة؟'
+      confirmClear: 'مسح كل المحادثة؟',
+      copy: 'نسخ',
+      copied: 'تم النسخ',
+      share: 'مشاركة',
+      like: 'إعجاب',
+      liked: 'شكراً على تقييمك 🌸',
+      report: 'إبلاغ عن مشكلة',
+      reportPrefix: 'أبلغ عن ملاحظة بخصوص جاسمين 🌸\n\nالرد:\n"',
+      reportSuffix: '"\n\nملاحظتي: '
     },
     en: {
       dir: 'ltr', htmlLang: 'en',
@@ -502,9 +590,49 @@
       download: 'Download',
       errorGeneric: 'Something went wrong, please try again.',
       errorBusy: 'Service is busy right now, try again in a minute.',
-      confirmClear: 'Clear the whole conversation?'
+      confirmClear: 'Clear the whole conversation?',
+      copy: 'Copy',
+      copied: 'Copied',
+      share: 'Share',
+      like: 'Like',
+      liked: 'Thanks for the feedback 🌸',
+      report: 'Report an issue',
+      reportPrefix: 'Feedback about Jasmine 🌸\n\nReply:\n"',
+      reportSuffix: '"\n\nMy note: '
     }
   };
+
+  const DEVELOPER_WHATSAPP = '967779339333';
+
+  function escapeHtml(str){
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  function inlineFormat(str){
+    return str.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  }
+
+  // تحويل نص بسيط (Markdown خفيف) إلى HTML منظم: فقرات، نص عريض، قوائم نقطية ومرقّمة
+  function renderMarkdownLite(text){
+    const escaped = escapeHtml(text);
+    const blocks = escaped.split(/\n\s*\n/);
+    return blocks.map(block => {
+      const lines = block.split('\n').filter(l => l.trim() !== '');
+      if (!lines.length) return '';
+      const isBullet = lines.every(l => /^\s*[-*•]\s+/.test(l));
+      const isNumbered = lines.every(l => /^\s*\d+[.)]\s+/.test(l));
+      if (isBullet){
+        return '<ul>' + lines.map(l => '<li>' + inlineFormat(l.replace(/^\s*[-*•]\s+/, '')) + '</li>').join('') + '</ul>';
+      }
+      if (isNumbered){
+        return '<ol>' + lines.map(l => '<li>' + inlineFormat(l.replace(/^\s*\d+[.)]\s+/, '')) + '</li>').join('') + '</ol>';
+      }
+      return '<p>' + lines.map(inlineFormat).join('<br>') + '</p>';
+    }).join('');
+  }
 
   function pollinationsUrl(prompt, seed){
     const base = 'https://image.pollinations.ai/prompt/' + encodeURIComponent(prompt);
@@ -573,11 +701,87 @@
     wrap.className = 'msg ' + role;
     const bubble = document.createElement('div');
     bubble.className = 'bubble';
-    bubble.textContent = content;
+    if (role === 'assistant'){
+      bubble.innerHTML = renderMarkdownLite(content);
+    } else {
+      const p = document.createElement('p');
+      p.textContent = content;
+      bubble.appendChild(p);
+    }
     wrap.appendChild(bubble);
+    if (role === 'assistant'){
+      wrap.appendChild(buildMessageActions(content));
+    }
     messagesEl.appendChild(wrap);
     if (scroll !== false) window.scrollTo(0, document.body.scrollHeight);
     return bubble;
+  }
+
+  function buildMessageActions(rawText){
+    const s = STRINGS[lang];
+    const bar = document.createElement('div');
+    bar.className = 'msg-actions';
+
+    // نسخ
+    const copyBtn = document.createElement('button');
+    copyBtn.title = s.copy;
+    copyBtn.setAttribute('aria-label', s.copy);
+    copyBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>';
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard?.writeText(rawText).then(() => {
+        const tag = document.createElement('span');
+        tag.className = 'copied-tag';
+        tag.textContent = s.copied;
+        bar.appendChild(tag);
+        setTimeout(() => tag.remove(), 1600);
+      });
+    });
+    bar.appendChild(copyBtn);
+
+    // مشاركة
+    const shareBtn = document.createElement('button');
+    shareBtn.title = s.share;
+    shareBtn.setAttribute('aria-label', s.share);
+    shareBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg>';
+    shareBtn.addEventListener('click', async () => {
+      if (navigator.share){
+        try { await navigator.share({ text: rawText, title: 'Jasmine جاسمين' }); } catch(e){}
+      } else {
+        navigator.clipboard?.writeText(rawText);
+      }
+    });
+    bar.appendChild(shareBtn);
+
+    // إعجاب
+    const likeBtn = document.createElement('button');
+    likeBtn.title = s.like;
+    likeBtn.setAttribute('aria-label', s.like);
+    likeBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>';
+    likeBtn.addEventListener('click', () => {
+      const wasActive = likeBtn.classList.contains('active-like');
+      likeBtn.classList.toggle('active-like');
+      if (!wasActive){
+        const tag = document.createElement('span');
+        tag.className = 'copied-tag';
+        tag.textContent = s.liked;
+        bar.appendChild(tag);
+        setTimeout(() => tag.remove(), 1800);
+      }
+    });
+    bar.appendChild(likeBtn);
+
+    // إبلاغ عن مشكلة (واتساب)
+    const reportLink = document.createElement('a');
+    reportLink.title = s.report;
+    reportLink.setAttribute('aria-label', s.report);
+    reportLink.target = '_blank';
+    reportLink.rel = 'noopener';
+    const trimmed = rawText.length > 300 ? rawText.slice(0, 300) + '…' : rawText;
+    reportLink.href = 'https://wa.me/' + DEVELOPER_WHATSAPP + '?text=' + encodeURIComponent(s.reportPrefix + trimmed + s.reportSuffix);
+    reportLink.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+    bar.appendChild(reportLink);
+
+    return bar;
   }
 
   function appendImageBubble(role, prompt, url, scroll){
@@ -641,6 +845,9 @@
     card.appendChild(frame);
     card.appendChild(meta);
     wrap.appendChild(card);
+    if (role === 'assistant'){
+      wrap.appendChild(buildMessageActions(prompt || ''));
+    }
     messagesEl.appendChild(wrap);
 
     attemptLoad();
