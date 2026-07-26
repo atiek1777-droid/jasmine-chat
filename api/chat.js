@@ -1,11 +1,14 @@
 // api/chat.js
-// هذه الدالة تعمل على خادم Vercel (سيرفرلس) — مفتاح Groq يبقى هنا فقط ولا يصل أبداً لمتصفح المستخدم.
+// هذه الدالة تعمل على خادم Vercel (سيرفرلس) — المفاتيح تبقى هنا فقط ولا تصل أبداً لمتصفح المستخدم.
 // تدعم وضعين: chat (محادثة عادية + اكتشاف تلقائي لطلبات الصور) و image (طلب صورة مباشر من الزر).
+// نظام احتياط تلقائي: Groq أولاً (الأسرع)، ولو صار ازدحام أو خطأ بالخادم، تتحول الطلبات تلقائياً لـ NVIDIA NIM.
 
 const SYSTEM_PROMPT = `You are "Jasmine" (جاسمين), a warm, helpful, multilingual AI assistant created for the public to use for free.
 Always reply in the same language the user writes in (Arabic or English), matching their dialect/register naturally.
 If the user writes in Arabic, reply in Arabic. If in English, reply in English. If mixed, mirror the dominant language.
-Be concise, friendly, and genuinely useful. Use simple formatting (short paragraphs, lists when helpful).
+Be concise, friendly, and genuinely useful. You may use light markdown formatting when it helps clarity: **bold** for key terms, and "- " bullet lists or "1. " numbered lists for steps/options. Don't overuse it — plain short paragraphs are fine for normal replies.
+
+Special case — identity: if the user asks who you are, who made/built/developed/created you, or similar (e.g. "من أنت", "من طورك", "مين سواك", "من صممك", "who are you", "who made you", "who developed you"), answer warmly and briefly, and state clearly that you were developed by tech expert Atiq Al-Jathwah (عتيق الجذوة) and Abdulmajeed Al-Jahmi (عبدالمجيد الجهمي). If replying in Arabic, include this exact phrase naturally in your answer: "تم التطوير بواسطة الخبير التقني: عتيق الجذوة وعبدالمجيد الجهمي". If replying in English, say you were developed by tech expert Atiq Al-Jathwah and Abdulmajeed Al-Jahmi.
 
 Special case — images: if (and only if) the user is asking you to draw, create, generate, design, or imagine an image/picture/logo/artwork/illustration, do NOT write a normal reply. Instead reply with EXACTLY one line and nothing else, in this exact format:
 IMAGE_REQUEST::<a short, vivid, detailed prompt in English describing the image, translated and enhanced from the user's request>
@@ -13,23 +16,69 @@ Do not add any greeting, explanation, or extra text before or after that line. F
 
 const TRANSLATE_PROMPT = `You turn a user's image request (in Arabic or English) into a short, vivid, detailed image-generation prompt in English. Reply with ONLY the prompt text, nothing else — no quotes, no explanation, no prefix.`;
 
-const MODEL = "llama-3.3-70b-versatile"; // نموذج مجاني عبر Groq، سريع وجيد بالعربي والإنجليزي
+const GROQ_MODEL = "llama-3.3-70b-versatile";
+const NVIDIA_MODEL = "meta/llama-3.1-70b-instruct";
 
 async function callGroq(apiKey, systemPrompt, messages, maxTokens) {
-  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+  return fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: MODEL,
+      model: GROQ_MODEL,
       messages: [{ role: "system", content: systemPrompt }, ...messages],
       temperature: 0.7,
       max_tokens: maxTokens,
     }),
   });
-  return res;
+}
+
+async function callNvidia(apiKey, systemPrompt, messages, maxTokens) {
+  return fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: NVIDIA_MODEL,
+      messages: [{ role: "system", content: systemPrompt }, ...messages],
+      temperature: 0.7,
+      max_tokens: maxTokens,
+    }),
+  });
+}
+
+// يحاول Groq أولاً؛ لو رجع 429 (ازدحام) أو خطأ خادم (5xx) أو فشل الاتصال، يجرّب NVIDIA تلقائياً كخطة احتياط
+async function chatCompletion(groqKey, nvidiaKey, systemPrompt, messages, maxTokens) {
+  let lastError = null;
+
+  if (groqKey) {
+    try {
+      const res = await callGroq(groqKey, systemPrompt, messages, maxTokens);
+      if (res.ok) return { ok: true, res, provider: "groq" };
+      // خطأ غير قابل لإعادة المحاولة (مثل طلب خاطئ) — رجّعه فوراً بدون تحويل
+      if (res.status !== 429 && res.status < 500) {
+        return { ok: false, res, provider: "groq" };
+      }
+      lastError = { status: res.status, text: await res.text().catch(() => "") };
+    } catch (e) {
+      lastError = { status: 0, text: String(e) };
+    }
+  }
+
+  if (nvidiaKey) {
+    try {
+      const res = await callNvidia(nvidiaKey, systemPrompt, messages, maxTokens);
+      return { ok: res.ok, res, provider: "nvidia" };
+    } catch (e) {
+      lastError = { status: 0, text: String(e) };
+    }
+  }
+
+  return { ok: false, res: null, provider: "none", error: lastError };
 }
 
 module.exports = async function handler(req, res) {
@@ -46,10 +95,12 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  const apiKey = process.env.GROQ_API_KEY;
-  if (!apiKey) {
+  const groqKey = process.env.GROQ_API_KEY;
+  const nvidiaKey = process.env.NVIDIA_API_KEY; // اختياري — لو غير موجود، يشتغل بـ Groq بس مثل قبل
+
+  if (!groqKey && !nvidiaKey) {
     res.status(500).json({
-      error: "GROQ_API_KEY غير مضبوط في إعدادات Vercel. راجع ملف README.",
+      error: "لا يوجد أي مفتاح API مضبوط (GROQ_API_KEY أو NVIDIA_API_KEY). راجع ملف README.",
     });
     return;
   }
@@ -73,40 +124,38 @@ module.exports = async function handler(req, res) {
         return;
       }
 
-      const groqRes = await callGroq(apiKey, TRANSLATE_PROMPT, [{ role: "user", content: rawPrompt }], 150);
+      const result = await chatCompletion(groqKey, nvidiaKey, TRANSLATE_PROMPT, [{ role: "user", content: rawPrompt }], 150);
 
-      if (!groqRes.ok) {
-        if (groqRes.status === 429) {
+      if (!result.ok) {
+        if (result.res?.status === 429) {
           res.status(429).json({ error: "الخدمة مزدحمة حالياً، حاول بعد دقيقة." });
           return;
         }
-        const errText = await groqRes.text();
-        res.status(groqRes.status).json({ error: "خطأ من مزوّد النموذج", details: errText });
+        res.status(result.res?.status || 502).json({ error: "خطأ من مزوّد النموذج" });
         return;
       }
 
-      const data = await groqRes.json();
+      const data = await result.res.json();
       const enhancedPrompt = (data.choices?.[0]?.message?.content || rawPrompt).trim();
       res.status(200).json({ type: "image", prompt: enhancedPrompt });
       return;
     }
 
     // ===== وضع المحادثة العادي (+ اكتشاف تلقائي لطلبات الصور) =====
-    const groqRes = await callGroq(apiKey, SYSTEM_PROMPT, trimmed, 1024);
+    const result = await chatCompletion(groqKey, nvidiaKey, SYSTEM_PROMPT, trimmed, 1024);
 
-    if (!groqRes.ok) {
-      if (groqRes.status === 429) {
+    if (!result.ok) {
+      if (result.res?.status === 429) {
         res.status(429).json({
           error: "الخدمة مزدحمة حالياً (تجاوزنا الحد المجاني المؤقت). حاول بعد دقيقة.",
         });
         return;
       }
-      const errText = await groqRes.text();
-      res.status(groqRes.status).json({ error: "خطأ من مزوّد النموذج", details: errText });
+      res.status(result.res?.status || 502).json({ error: "خطأ من مزوّد النموذج" });
       return;
     }
 
-    const data = await groqRes.json();
+    const data = await result.res.json();
     const reply = (data.choices?.[0]?.message?.content ?? "").trim();
 
     if (reply.startsWith("IMAGE_REQUEST::")) {
