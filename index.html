@@ -98,7 +98,7 @@
     max-width:760px;
     width:100%;
     margin:0 auto;
-    padding:20px 16px 190px;
+    padding:20px 16px 150px;
   }
 
   .empty-state{
@@ -187,6 +187,7 @@
   .msg-actions button:hover, .msg-actions a:hover{ background:rgba(203,164,92,0.12); color:var(--gold); }
   .msg-actions button.active-like{ color:#8fae94; }
   .msg-actions button.active-like svg{ fill:#8fae94; }
+  .msg-actions button.active-speak{ color:var(--gold); background:rgba(203,164,92,0.12); }
   .msg-actions svg{ width:15px; height:15px; }
   .msg-actions .copied-tag{
     font-size:11px;
@@ -290,6 +291,37 @@
   .mode-banner.show{ display:flex; }
   .mode-banner svg{ width:14px; height:14px; }
 
+  /* ===== Mic button ===== */
+  .mic-btn{
+    width:40px; height:40px;
+    border-radius:50%;
+    border:1px solid rgba(203,164,92,0.35);
+    background:transparent;
+    color:var(--petal-dim);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    transition:all .18s ease;
+    position:relative;
+  }
+  .mic-btn svg{ width:18px; height:18px; }
+  .mic-btn:hover{ border-color:var(--gold); color:var(--gold); }
+  .mic-btn.recording{
+    background:#c25b4a;
+    border-color:#c25b4a;
+    color:#fff;
+    animation:micPulse 1.4s ease-in-out infinite;
+  }
+  @keyframes micPulse{
+    0%, 100%{ box-shadow:0 0 0 0 rgba(194,91,74,0.5); }
+    50%{ box-shadow:0 0 0 8px rgba(194,91,74,0); }
+  }
+  .mic-btn.transcribing{ opacity:.6; pointer-events:none; }
+  .mic-btn.transcribing svg{ animation:spin 1s linear infinite; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
   /* ===== Image message card ===== */
   .image-card{
     max-width:320px;
@@ -382,60 +414,6 @@
     font-size:13px;
   }
 
-  /* ===== Footer (site credit) — Yemen-flag animated news ticker ===== */
-  .site-footer{
-    margin-top:10px;
-    overflow:hidden;
-  }
-  .ticker-row{
-    overflow:hidden;
-    white-space:nowrap;
-    padding:3px 0;
-    -webkit-mask-image:linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
-    mask-image:linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
-  }
-  .ticker-track{
-    display:inline-flex;
-    align-items:center;
-    gap:56px;
-    animation:tickerScroll 18s linear infinite;
-    will-change:transform;
-  }
-  .ticker-row:nth-child(2) .ticker-track{ animation-duration:21s; }
-  .ticker-text{
-    display:inline-flex;
-    align-items:center;
-    gap:10px;
-    flex-shrink:0;
-    direction:rtl;
-    font-family:'Cairo', 'Almarai', 'Tajawal', sans-serif;
-    font-weight:800;
-    font-size:clamp(11px, 2.6vw, 13px);
-
-    background:linear-gradient(90deg, #ce1126, #ffffff, #3a3a3a, #ce1126, #ffffff, #3a3a3a);
-    background-size:300% auto;
-    -webkit-background-clip:text;
-    background-clip:text;
-    -webkit-text-fill-color:transparent;
-    color:transparent;
-    -webkit-text-stroke:0.35px rgba(247,243,232,0.4);
-
-    animation:footerGradient 5s linear infinite, footerWave 3.2s ease-in-out infinite;
-  }
-  .ticker-text a{
-    -webkit-text-fill-color:transparent;
-    color:transparent;
-    background:inherit;
-    -webkit-background-clip:text;
-    background-clip:text;
-    text-decoration:none;
-    pointer-events:auto;
-    border-bottom:1px dashed rgba(247,243,232,0.35);
-  }
-  @keyframes tickerScroll{
-    0%{ transform:translateX(0); }
-    100%{ transform:translateX(-50%); }
-  }
   @keyframes footerGradient{
     0%{ background-position:0% 50%; }
     100%{ background-position:300% 50%; }
@@ -445,9 +423,94 @@
     50%{ transform:translateY(-2px); }
   }
   @media (prefers-reduced-motion: reduce){
-    .ticker-track{ animation:none; }
-    .ticker-text{ animation:footerGradient 5s linear infinite; }
+    .about-credit{ animation:footerGradient 5s linear infinite; }
   }
+
+  /* ===== Header "About" icon button ===== */
+  .icon-btn.icon-only{
+    width:36px; height:36px;
+    padding:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .icon-btn.icon-only svg{ width:17px; height:17px; }
+
+  /* ===== About modal (Yemen-flag animated credit) ===== */
+  .about-overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(10,16,14,0.72);
+    backdrop-filter:blur(3px);
+    z-index:50;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+  .about-overlay.show{ display:flex; }
+  .about-modal{
+    position:relative;
+    max-width:340px;
+    width:100%;
+    background:var(--ink-2);
+    border:1px solid rgba(203,164,92,0.3);
+    border-radius:20px;
+    padding:32px 22px 24px;
+    text-align:center;
+    animation:rise .25s ease both;
+  }
+  .about-close{
+    position:absolute;
+    top:10px; left:10px;
+    width:28px; height:28px;
+    border-radius:50%;
+    border:none;
+    background:transparent;
+    color:var(--petal-dim);
+    cursor:pointer;
+    font-size:15px;
+  }
+  .about-close:hover{ color:var(--gold); }
+  .about-credit{
+    font-family:'Cairo', 'Almarai', 'Tajawal', sans-serif;
+    font-weight:800;
+    font-size:14.5px;
+    line-height:1.9;
+    margin-bottom:16px;
+
+    background:linear-gradient(90deg, #ce1126, #ffffff, #3a3a3a, #ce1126, #ffffff, #3a3a3a);
+    background-size:300% auto;
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    color:transparent;
+    -webkit-text-stroke:0.3px rgba(247,243,232,0.4);
+
+    animation:footerGradient 5s linear infinite, footerWave 3.2s ease-in-out infinite;
+  }
+  .about-contacts{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .about-contacts a{
+    color:var(--sage);
+    text-decoration:none;
+    font-size:13px;
+    border:1px solid rgba(143,174,148,0.3);
+    border-radius:999px;
+    padding:8px 14px;
+    transition:.2s;
+  }
+  .about-contacts a:hover{ background:rgba(143,174,148,0.1); }
+  .about-rights{
+    font-size:11px;
+    color:var(--petal-dim);
+    opacity:.7;
+  }
+
 
   ::-webkit-scrollbar{ width:8px; }
   ::-webkit-scrollbar-thumb{ background:rgba(203,164,92,0.25); border-radius:8px; }
@@ -479,6 +542,9 @@
     </div>
   </div>
   <div class="header-actions">
+    <button class="icon-btn icon-only" id="aboutBtn" aria-label="About" title="حول الموقع">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    </button>
     <button class="icon-btn" id="clearBtn">مسح المحادثة</button>
     <button class="icon-btn" id="langBtn">EN</button>
   </div>
@@ -512,6 +578,9 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
     </button>
     <textarea id="input" rows="1" placeholder="اكتب رسالتك هنا…"></textarea>
+    <button class="mic-btn" id="micBtn" aria-label="Voice input" title="تسجيل صوتي">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+    </button>
     <button class="send-btn" id="sendBtn" aria-label="Send">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="22" y1="2" x2="11" y2="13"></line>
@@ -520,19 +589,25 @@
     </button>
   </div>
   <div class="disclaimer" id="disclaimer">قد تُخطئ جاسمين أحياناً — تحققي من المعلومات المهمة</div>
-  <div class="site-footer">
-    <div class="ticker-row">
-      <div class="ticker-track">
-        <span class="ticker-text">بكل فخر، تم التطوير بواسطة الخبير التقني: عتيق الجذوة وعبدالمجيد الجهمي 🌸 جميع الحقوق محفوظة ©</span>
-        <span class="ticker-text" aria-hidden="true">بكل فخر، تم التطوير بواسطة الخبير التقني: عتيق الجذوة وعبدالمجيد الجهمي 🌸 جميع الحقوق محفوظة ©</span>
-      </div>
+</div>
+
+<div class="about-overlay" id="aboutOverlay">
+  <div class="about-modal">
+    <button class="about-close" id="aboutClose" aria-label="Close">✕</button>
+    <svg class="mark" viewBox="0 0 100 100" fill="none" style="width:48px;height:48px;margin:0 auto 10px;display:block;">
+      <ellipse cx="50" cy="28" rx="12" ry="20" fill="var(--gold)" opacity="0.9"/>
+      <ellipse cx="72" cy="42" rx="12" ry="20" fill="var(--gold)" opacity="0.85" transform="rotate(72 72 42)"/>
+      <ellipse cx="64" cy="68" rx="12" ry="20" fill="var(--gold)" opacity="0.8" transform="rotate(144 64 68)"/>
+      <ellipse cx="36" cy="68" rx="12" ry="20" fill="var(--gold)" opacity="0.8" transform="rotate(216 36 68)"/>
+      <ellipse cx="28" cy="42" rx="12" ry="20" fill="var(--gold)" opacity="0.85" transform="rotate(288 28 42)"/>
+      <circle cx="50" cy="50" r="8" fill="var(--petal)"/>
+    </svg>
+    <div class="about-credit">بكل فخر، تم التطوير بواسطة الخبير التقني: عتيق الجذوة وعبدالمجيد الجهمي</div>
+    <div class="about-contacts">
+      <a href="https://wa.me/967779339333" target="_blank" rel="noopener">📱 عتيق — واتساب <span dir="ltr">967 779 339 333+</span></a>
+      <a href="https://wa.me/491787558762" target="_blank" rel="noopener">📱 عبدالمجيد — واتساب <span dir="ltr">49 178 7558762+</span></a>
     </div>
-    <div class="ticker-row">
-      <div class="ticker-track">
-        <span class="ticker-text">📱 تواصل واتساب — عتيق: <a href="https://wa.me/967779339333" target="_blank" rel="noopener" dir="ltr">967 779 339 333+</a> &nbsp;•&nbsp; عبدالمجيد: <a href="https://wa.me/491787558762" target="_blank" rel="noopener" dir="ltr">49 178 7558762+</a></span>
-        <span class="ticker-text" aria-hidden="true">📱 تواصل واتساب — عتيق: <a href="https://wa.me/967779339333" target="_blank" rel="noopener" dir="ltr">967 779 339 333+</a> &nbsp;•&nbsp; عبدالمجيد: <a href="https://wa.me/491787558762" target="_blank" rel="noopener" dir="ltr">49 178 7558762+</a></span>
-      </div>
-    </div>
+    <div class="about-rights">جميع الحقوق محفوظة © 2026</div>
   </div>
 </div>
 
@@ -569,7 +644,14 @@
       liked: 'شكراً على تقييمك 🌸',
       report: 'إبلاغ عن مشكلة',
       reportPrefix: 'أبلغ عن ملاحظة بخصوص جاسمين 🌸\n\nالرد:\n"',
-      reportSuffix: '"\n\nملاحظتي: '
+      reportSuffix: '"\n\nملاحظتي: ',
+      listen: 'استماع',
+      stopListen: 'إيقاف',
+      micTitle: 'تسجيل صوتي',
+      micDenied: 'الرجاء السماح باستخدام الميكروفون من إعدادات المتصفح',
+      micNotSupported: 'التسجيل الصوتي غير مدعوم بهذا المتصفح',
+      transcribeFailed: 'تعذّر تحويل الصوت لنص، حاول مرة ثانية',
+      recording: 'جارِ التسجيل… اضغط للإيقاف'
     },
     en: {
       dir: 'ltr', htmlLang: 'en',
@@ -598,7 +680,14 @@
       liked: 'Thanks for the feedback 🌸',
       report: 'Report an issue',
       reportPrefix: 'Feedback about Jasmine 🌸\n\nReply:\n"',
-      reportSuffix: '"\n\nMy note: '
+      reportSuffix: '"\n\nMy note: ',
+      listen: 'Listen',
+      stopListen: 'Stop',
+      micTitle: 'Voice input',
+      micDenied: 'Please allow microphone access in your browser settings',
+      micNotSupported: 'Voice recording is not supported on this browser',
+      transcribeFailed: 'Could not transcribe audio, please try again',
+      recording: 'Recording… tap to stop'
     }
   };
 
@@ -654,6 +743,13 @@
   const errorBanner = $('errorBanner');
   const imageToggle = $('imageToggle');
   const modeBanner = $('modeBanner');
+  const micBtn = $('micBtn');
+  const aboutBtn = $('aboutBtn');
+  const aboutOverlay = $('aboutOverlay');
+  const aboutClose = $('aboutClose');
+  let mediaRecorder = null;
+  let audioChunks = [];
+  let isRecording = false;
 
   function applyLang(){
     const s = STRINGS[lang];
@@ -668,6 +764,8 @@
     input.placeholder = imageMode ? s.imagePlaceholder : s.placeholder;
     $('disclaimer').textContent = s.disclaimer;
     imageToggle.title = s.imageToggleTitle;
+    micBtn.title = s.micTitle;
+    micBtn.setAttribute('aria-label', s.micTitle);
     $('modeBannerText').textContent = s.modeBannerText;
     const sugg = $('suggestions');
     sugg.innerHTML = '';
@@ -737,6 +835,35 @@
       });
     });
     bar.appendChild(copyBtn);
+
+    // استماع (نطق الرد)
+    if ('speechSynthesis' in window){
+      const speakBtn = document.createElement('button');
+      speakBtn.title = s.listen;
+      speakBtn.setAttribute('aria-label', s.listen);
+      speakBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>';
+      speakBtn.addEventListener('click', () => {
+        if (speakBtn.classList.contains('active-speak')){
+          window.speechSynthesis.cancel();
+          speakBtn.classList.remove('active-speak');
+          return;
+        }
+        document.querySelectorAll('.msg-actions button.active-speak').forEach(b => b.classList.remove('active-speak'));
+        window.speechSynthesis.cancel();
+        const plain = rawText.replace(/\*\*/g, '').replace(/[#*_`]/g, '');
+        const utter = new SpeechSynthesisUtterance(plain);
+        const isArabic = /[\u0600-\u06FF]/.test(plain);
+        utter.lang = isArabic ? 'ar-SA' : 'en-US';
+        const voices = window.speechSynthesis.getVoices();
+        const match = voices.find(v => v.lang && v.lang.toLowerCase().startsWith(isArabic ? 'ar' : 'en'));
+        if (match) utter.voice = match;
+        utter.onend = () => speakBtn.classList.remove('active-speak');
+        utter.onerror = () => speakBtn.classList.remove('active-speak');
+        speakBtn.classList.add('active-speak');
+        window.speechSynthesis.speak(utter);
+      });
+      bar.appendChild(speakBtn);
+    }
 
     // مشاركة
     const shareBtn = document.createElement('button');
@@ -982,6 +1109,95 @@
     modeBanner.classList.toggle('show', imageMode);
     input.placeholder = imageMode ? STRINGS[lang].imagePlaceholder : STRINGS[lang].placeholder;
     input.focus();
+  });
+
+  // ===== تسجيل صوتي وتحويله لنص =====
+  function pickMimeType(){
+    const candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'];
+    for (const c of candidates){
+      if (window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(c)) return c;
+    }
+    return '';
+  }
+
+  async function startRecording(){
+    const s = STRINGS[lang];
+    if (!navigator.mediaDevices || !window.MediaRecorder){
+      showError(s.micNotSupported);
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mimeType = pickMimeType();
+      mediaRecorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+      audioChunks = [];
+      mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunks.push(e.data); };
+      mediaRecorder.onstop = () => {
+        stream.getTracks().forEach(t => t.stop());
+        handleRecordedAudio(mediaRecorder.mimeType || mimeType || 'audio/webm');
+      };
+      mediaRecorder.start();
+      isRecording = true;
+      micBtn.classList.add('recording');
+      input.placeholder = s.recording;
+    } catch (err) {
+      showError(s.micDenied);
+    }
+  }
+
+  function stopRecording(){
+    if (mediaRecorder && isRecording){
+      mediaRecorder.stop();
+      isRecording = false;
+      micBtn.classList.remove('recording');
+    }
+  }
+
+  function handleRecordedAudio(mimeType){
+    const s = STRINGS[lang];
+    if (!audioChunks.length){
+      input.placeholder = imageMode ? s.imagePlaceholder : s.placeholder;
+      return;
+    }
+    const blob = new Blob(audioChunks, { type: mimeType });
+    micBtn.classList.add('transcribing');
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64 = String(reader.result).split(',')[1] || '';
+      try {
+        const res = await fetch('/api/transcribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ audio: base64, mimeType })
+        });
+        const data = await res.json();
+        micBtn.classList.remove('transcribing');
+        input.placeholder = imageMode ? s.imagePlaceholder : s.placeholder;
+        if (!res.ok || !data.text){
+          showError(s.transcribeFailed);
+          return;
+        }
+        input.value = (input.value ? input.value + ' ' : '') + data.text;
+        autoGrow();
+        input.focus();
+      } catch (err) {
+        micBtn.classList.remove('transcribing');
+        input.placeholder = imageMode ? s.imagePlaceholder : s.placeholder;
+        showError(s.transcribeFailed);
+      }
+    };
+    reader.readAsDataURL(blob);
+  }
+
+  micBtn.addEventListener('click', () => {
+    if (isRecording) stopRecording();
+    else startRecording();
+  });
+
+  aboutBtn.addEventListener('click', () => aboutOverlay.classList.add('show'));
+  aboutClose.addEventListener('click', () => aboutOverlay.classList.remove('show'));
+  aboutOverlay.addEventListener('click', (e) => {
+    if (e.target === aboutOverlay) aboutOverlay.classList.remove('show');
   });
 
   applyLang();
