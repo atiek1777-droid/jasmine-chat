@@ -9,6 +9,8 @@ If the user writes in Arabic, reply in Arabic. If in English, reply in English. 
 
 Tone and style: be genuinely helpful, warm, and respectful — like a knowledgeable friend, not a corporate manual. Write in natural, flowing prose, the way a person would speak in normal conversation. Avoid over-using bullet lists, numbered lists, or bold headings by default; reserve that kind of structure for cases where it truly aids clarity (e.g. real step-by-step instructions, comparing several distinct options, or a genuine list of items). Most everyday replies should just be well-written paragraphs.
 
+CRITICAL — language purity: reply ENTIRELY in one language only (Arabic or English, matching the user). NEVER insert stray words, characters, or fragments from any other language (Chinese, Thai, Hindi, Russian, Korean, etc.) into your reply under any circumstance. If you notice you are unsure of a word, choose a simpler word in the SAME language instead of guessing in another script. Mixing scripts/languages within a single reply is a serious error — double-check before answering that every word is in the correct language.
+
 Accuracy: never make things up. If you don't know something or aren't sure, say so plainly instead of guessing confidently. Prefer being honestly uncertain over sounding falsely authoritative.
 
 Continuity: if you need to refer to something the user said earlier in the conversation, weave it in naturally as part of the reply — don't explicitly announce that you "remember" or "recall" it.
@@ -19,6 +21,10 @@ Sensitive topics: stay neutral and balanced on political, religious, or other co
 
 Your overall goal: give answers that are useful, accurate, and easy to understand, in a tone that feels natural, warm, and trustworthy.
 
+Follow-up suggestions: after a substantive reply (not for simple greetings or one-word acknowledgements), think of up to 3 short, natural follow-up actions the user might want next — things like continuing the idea, going deeper on one part, or a related next step. Append them at the very end of your reply as a single hidden line in EXACTLY this format (nothing else on that line):
+SUGGESTIONS::suggestion one|suggestion two|suggestion three
+Each suggestion must be very short (3-6 words), written from the user's point of view as something THEY would say next (e.g. "لخّص هذا بجدول", "اشرح النقطة الثانية أكثر", "اكتب نسخة أقصر"), in the same language as your reply. If nothing meaningful fits, omit this line entirely. Never mention this line or its format in the visible part of your reply.
+
 Special case — identity: if the user asks who you are, who made/built/developed/created you, or similar (e.g. "من أنت", "من طورك", "مين سواك", "من صممك", "who are you", "who made you", "who developed you"), answer warmly and briefly, and state clearly that you were developed by tech expert Atiq Al-Jathwah (عتيق الجذوة) and Abdulmajeed Al-Jahmi (عبدالمجيد الجهمي). If replying in Arabic, include this exact phrase naturally in your answer: "تم التطوير بواسطة الخبير التقني: عتيق الجذوة وعبدالمجيد الجهمي". If replying in English, say you were developed by tech expert Atiq Al-Jathwah and Abdulmajeed Al-Jahmi.
 
 Special case — images: if (and only if) the user is asking you to draw, create, generate, design, or imagine an image/picture/logo/artwork/illustration, do NOT write a normal reply. Instead reply with EXACTLY one line and nothing else, in this exact format:
@@ -28,7 +34,7 @@ Do not add any greeting, explanation, or extra text before or after that line. F
 const TRANSLATE_PROMPT = `You turn a user's image request (in Arabic or English) into a short, vivid, detailed image-generation prompt in English. Reply with ONLY the prompt text, nothing else — no quotes, no explanation, no prefix.`;
 
 const GROQ_MODEL = "llama-3.3-70b-versatile";
-const NVIDIA_MODEL = "meta/llama-3.1-70b-instruct";
+const NVIDIA_MODEL = "z-ai/glm-5.2";
 
 async function callGroq(apiKey, systemPrompt, messages, maxTokens) {
   return fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -40,7 +46,7 @@ async function callGroq(apiKey, systemPrompt, messages, maxTokens) {
     body: JSON.stringify({
       model: GROQ_MODEL,
       messages: [{ role: "system", content: systemPrompt }, ...messages],
-      temperature: 0.7,
+      temperature: 0.5,
       max_tokens: maxTokens,
     }),
   });
@@ -56,7 +62,7 @@ async function callNvidia(apiKey, systemPrompt, messages, maxTokens) {
     body: JSON.stringify({
       model: NVIDIA_MODEL,
       messages: [{ role: "system", content: systemPrompt }, ...messages],
-      temperature: 0.7,
+      temperature: 0.5,
       max_tokens: maxTokens,
     }),
   });
@@ -167,7 +173,7 @@ module.exports = async function handler(req, res) {
     }
 
     const data = await result.res.json();
-    const reply = (data.choices?.[0]?.message?.content ?? "").trim();
+    let reply = (data.choices?.[0]?.message?.content ?? "").trim();
 
     if (reply.startsWith("IMAGE_REQUEST::")) {
       const prompt = reply.slice("IMAGE_REQUEST::".length).trim();
@@ -175,8 +181,20 @@ module.exports = async function handler(req, res) {
       return;
     }
 
-    res.status(200).json({ type: "text", reply });
+    let suggestions = [];
+    const suggMatch = reply.match(/\n?SUGGESTIONS::(.+)$/);
+    if (suggMatch) {
+      suggestions = suggMatch[1]
+        .split("|")
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .slice(0, 3);
+      reply = reply.slice(0, suggMatch.index).trim();
+    }
+
+    res.status(200).json({ type: "text", reply, suggestions });
   } catch (err) {
     res.status(500).json({ error: "خطأ داخلي في الخادم", details: String(err) });
   }
 };
+
