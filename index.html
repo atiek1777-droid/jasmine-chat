@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Tajawal:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,500&family=Inter:wght@400;500;600&family=Cairo:wght@700;800&family=Almarai:wght@700;800&display=swap" rel="stylesheet">
 <style>
-  :root{
+  :root, [data-theme="night"]{
     --ink: #16241f;
     --ink-2: #1e332c;
     --ink-3: #24443b;
@@ -19,7 +19,35 @@
     --gold-dim: #8a7442;
     --sage: #8fae94;
     --danger: #d98a7a;
+    --bg-glow-1: #223b33;
+    --bg-glow-2: #1c3d34;
     --radius: 18px;
+  }
+  [data-theme="gold"]{
+    --ink: #0d1117;
+    --ink-2: #161b22;
+    --ink-3: #1f2733;
+    --petal: #f2f2f2;
+    --petal-dim: #9aa3ad;
+    --gold: #d4af37;
+    --gold-dim: #a8872c;
+    --sage: #2f7d68;
+    --danger: #d98a7a;
+    --bg-glow-1: #14261f;
+    --bg-glow-2: #111820;
+  }
+  [data-theme="light"]{
+    --ink: #faf8f3;
+    --ink-2: #ffffff;
+    --ink-3: #f1ede2;
+    --petal: #20302a;
+    --petal-dim: #6b7670;
+    --gold: #b8863f;
+    --gold-dim: #8a6530;
+    --sage: #4f7a68;
+    --danger: #b1544a;
+    --bg-glow-1: #f3ecd9;
+    --bg-glow-2: #eef2ea;
   }
 
   *{box-sizing:border-box;}
@@ -27,8 +55,8 @@
   body{
     margin:0;
     background:
-      radial-gradient(1200px 800px at 15% -10%, #223b33 0%, transparent 60%),
-      radial-gradient(1000px 700px at 110% 10%, #1c3d34 0%, transparent 55%),
+      radial-gradient(1200px 800px at 15% -10%, var(--bg-glow-1) 0%, transparent 60%),
+      radial-gradient(1000px 700px at 110% 10%, var(--bg-glow-2) 0%, transparent 55%),
       var(--ink);
     color:var(--petal);
     font-family:'Tajawal', 'Inter', sans-serif;
@@ -36,6 +64,7 @@
     flex-direction:column;
     min-height:100vh;
     overflow-x:hidden;
+    transition:background .3s ease, color .3s ease;
   }
   body.lang-en{ font-family:'Inter', 'Tajawal', sans-serif; }
 
@@ -56,7 +85,7 @@
     background:rgba(22,36,31,0.72);
   }
   .brand{ display:flex; align-items:center; gap:12px; }
-  .brand .mark{ width:34px; height:34px; flex-shrink:0; }
+  .brand .mark{ width:38px; height:auto; flex-shrink:0; object-fit:contain; }
   .brand .name{ font-size:22px; letter-spacing:0.3px; }
   .brand .name b{ color:var(--gold); font-weight:600; }
   .brand .tagline{ font-size:11px; color:var(--sage); letter-spacing:0.5px; margin-top:2px; }
@@ -107,7 +136,7 @@
     color:var(--petal-dim);
     padding:40px 20px;
   }
-  .empty-state .mark-lg{ width:64px; height:64px; margin:0 auto 18px; opacity:.9; }
+  .empty-state .mark-lg{ width:84px; height:auto; margin:0 auto 18px; opacity:.95; object-fit:contain; }
   .empty-state h1{ font-size:30px; margin:0 0 8px; color:var(--petal); font-weight:600; }
   .empty-state p{ font-size:14.5px; line-height:1.8; max-width:420px; margin:0 auto; }
   .suggestions{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:22px; }
@@ -124,9 +153,30 @@
   }
   .chip:hover{ border-color:var(--gold); color:var(--gold); }
 
+  .suggestion-chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:7px;
+    margin:-2px 0 14px;
+    padding-inline-start:4px;
+  }
+  .sugg-chip{
+    border:1px solid rgba(203,164,92,0.28);
+    color:var(--gold);
+    background:rgba(203,164,92,0.06);
+    padding:7px 14px;
+    border-radius:999px;
+    font-size:12.5px;
+    cursor:pointer;
+    transition:.18s;
+    font-family:inherit;
+  }
+  .sugg-chip:hover{ background:rgba(203,164,92,0.15); border-color:var(--gold); }
+  .sugg-chip:active{ transform:scale(0.97); }
+
   .msg{
     display:flex;
-    margin-bottom:16px;
+    margin-bottom:12px;
     animation:rise .35s ease both;
   }
   @keyframes rise{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
@@ -135,18 +185,18 @@
   .msg.assistant{ justify-content:flex-start; }
 
   .bubble{
-    max-width:78%;
-    padding:13px 17px;
+    max-width:88%;
+    padding:12px 16px;
     border-radius:var(--radius);
-    line-height:1.85;
+    line-height:1.65;
     font-size:15px;
     word-break:break-word;
   }
-  .bubble p{ margin:0 0 10px; white-space:pre-wrap; }
+  .bubble p{ margin:0 0 8px; white-space:pre-wrap; }
   .bubble p:last-child{ margin-bottom:0; }
-  .bubble ul, .bubble ol{ margin:0 0 10px; padding-inline-start:22px; }
+  .bubble ul, .bubble ol{ margin:0 0 8px; padding-inline-start:20px; }
   .bubble ul:last-child, .bubble ol:last-child{ margin-bottom:0; }
-  .bubble li{ margin-bottom:5px; }
+  .bubble li{ margin-bottom:3px; }
   .bubble li:last-child{ margin-bottom:0; }
   .bubble strong{ color:var(--gold); font-weight:700; }
   .msg.user .bubble p{ white-space:pre-wrap; }
@@ -518,7 +568,7 @@
   @media (max-width:480px){
     .brand .name{ font-size:19px; }
     .empty-state h1{ font-size:24px; }
-    .bubble{ max-width:88%; font-size:14.5px; }
+    .bubble{ max-width:92%; font-size:14.5px; }
   }
 </style>
 </head>
@@ -526,16 +576,7 @@
 
 <header>
   <div class="brand">
-    <svg class="mark" viewBox="0 0 100 100" fill="none">
-      <g>
-        <ellipse class="petal" cx="50" cy="28" rx="12" ry="20" fill="var(--petal)" opacity="0.95"/>
-        <ellipse class="petal" cx="72" cy="42" rx="12" ry="20" fill="var(--petal)" opacity="0.9" transform="rotate(72 72 42)"/>
-        <ellipse class="petal" cx="64" cy="68" rx="12" ry="20" fill="var(--petal)" opacity="0.85" transform="rotate(144 64 68)"/>
-        <ellipse class="petal" cx="36" cy="68" rx="12" ry="20" fill="var(--petal)" opacity="0.85" transform="rotate(216 36 68)"/>
-        <ellipse class="petal" cx="28" cy="42" rx="12" ry="20" fill="var(--petal)" opacity="0.9" transform="rotate(288 28 42)"/>
-        <circle cx="50" cy="50" r="8" fill="var(--gold)"/>
-      </g>
-    </svg>
+    <img class="mark" src="logo.png" alt="Jasmine AI logo" />
     <div>
       <div class="name display-font" id="brandName"><b>جاسمين</b> Jasmine</div>
       <div class="tagline" id="tagline">مساعد ذكاء اصطناعي مجاني</div>
@@ -545,6 +586,9 @@
     <button class="icon-btn icon-only" id="aboutBtn" aria-label="About" title="حول الموقع">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
     </button>
+    <button class="icon-btn icon-only" id="themeBtn" aria-label="Theme" title="تغيير المظهر">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 000 20 4 4 0 010-8 3 3 0 000-6 4 4 0 010-6z"/><circle cx="7.5" cy="10.5" r="1"/><circle cx="9.5" cy="6.5" r="1"/><circle cx="14.5" cy="6.5" r="1"/></svg>
+    </button>
     <button class="icon-btn" id="clearBtn">مسح المحادثة</button>
     <button class="icon-btn" id="langBtn">EN</button>
   </div>
@@ -552,14 +596,7 @@
 
 <main id="main">
   <div class="empty-state" id="emptyState">
-    <svg class="mark-lg" viewBox="0 0 100 100" fill="none">
-      <ellipse cx="50" cy="28" rx="12" ry="20" fill="var(--sage)" opacity="0.5"/>
-      <ellipse cx="72" cy="42" rx="12" ry="20" fill="var(--sage)" opacity="0.45" transform="rotate(72 72 42)"/>
-      <ellipse cx="64" cy="68" rx="12" ry="20" fill="var(--sage)" opacity="0.4" transform="rotate(144 64 68)"/>
-      <ellipse cx="36" cy="68" rx="12" ry="20" fill="var(--sage)" opacity="0.4" transform="rotate(216 36 68)"/>
-      <ellipse cx="28" cy="42" rx="12" ry="20" fill="var(--sage)" opacity="0.45" transform="rotate(288 28 42)"/>
-      <circle cx="50" cy="50" r="8" fill="var(--gold)"/>
-    </svg>
+    <img class="mark-lg" src="logo.png" alt="Jasmine AI logo" />
     <h1 class="display-font" id="emptyTitle">أهلاً، كيف أقدر أساعدك؟</h1>
     <p id="emptySub">اسأليني أي شيء بالعربي أو الإنجليزي — أنا هنا للمساعدة.</p>
     <div class="suggestions" id="suggestions"></div>
@@ -594,14 +631,7 @@
 <div class="about-overlay" id="aboutOverlay">
   <div class="about-modal">
     <button class="about-close" id="aboutClose" aria-label="Close">✕</button>
-    <svg class="mark" viewBox="0 0 100 100" fill="none" style="width:48px;height:48px;margin:0 auto 10px;display:block;">
-      <ellipse cx="50" cy="28" rx="12" ry="20" fill="var(--gold)" opacity="0.9"/>
-      <ellipse cx="72" cy="42" rx="12" ry="20" fill="var(--gold)" opacity="0.85" transform="rotate(72 72 42)"/>
-      <ellipse cx="64" cy="68" rx="12" ry="20" fill="var(--gold)" opacity="0.8" transform="rotate(144 64 68)"/>
-      <ellipse cx="36" cy="68" rx="12" ry="20" fill="var(--gold)" opacity="0.8" transform="rotate(216 36 68)"/>
-      <ellipse cx="28" cy="42" rx="12" ry="20" fill="var(--gold)" opacity="0.85" transform="rotate(288 28 42)"/>
-      <circle cx="50" cy="50" r="8" fill="var(--petal)"/>
-    </svg>
+    <img src="logo.png" alt="Jasmine AI logo" style="width:56px;height:auto;margin:0 auto 12px;display:block;" />
     <div class="about-credit">بكل فخر، تم التطوير بواسطة الخبير التقني: عتيق الجذوة وعبدالمجيد الجهمي</div>
     <div class="about-contacts">
       <a href="https://wa.me/967779339333" target="_blank" rel="noopener">📱 عتيق — واتساب <span dir="ltr">967 779 339 333+</span></a>
@@ -615,6 +645,12 @@
 (function(){
   const STORAGE_KEY = 'jasmine_chat_history_v1';
   const LANG_KEY = 'jasmine_lang';
+  const THEME_KEY = 'jasmine_theme';
+  const THEMES = ['night', 'gold', 'light'];
+  const THEME_NAMES = {
+    ar: { night: 'ليلي', gold: 'ذهبي', light: 'فاتح' },
+    en: { night: 'Night', gold: 'Gold', light: 'Light' }
+  };
 
   const STRINGS = {
     ar: {
@@ -745,6 +781,8 @@
   const modeBanner = $('modeBanner');
   const micBtn = $('micBtn');
   const aboutBtn = $('aboutBtn');
+  const themeBtn = $('themeBtn');
+  let currentTheme = localStorage.getItem(THEME_KEY) || 'night';
   const aboutOverlay = $('aboutOverlay');
   const aboutClose = $('aboutClose');
   let mediaRecorder = null;
@@ -765,6 +803,10 @@
     $('disclaimer').textContent = s.disclaimer;
     imageToggle.title = s.imageToggleTitle;
     micBtn.title = s.micTitle;
+    if (typeof currentTheme !== 'undefined' && themeBtn){
+      themeBtn.title = THEME_NAMES[lang][currentTheme];
+      themeBtn.setAttribute('aria-label', THEME_NAMES[lang][currentTheme]);
+    }
     micBtn.setAttribute('aria-label', s.micTitle);
     $('modeBannerText').textContent = s.modeBannerText;
     const sugg = $('suggestions');
@@ -1030,6 +1072,24 @@
     appendImageBubble('assistant', prompt, url);
   }
 
+  function appendSuggestionChips(suggestions){
+    const wrap = document.createElement('div');
+    wrap.className = 'suggestion-chips';
+    suggestions.forEach((sugg) => {
+      const chip = document.createElement('button');
+      chip.className = 'sugg-chip';
+      chip.textContent = sugg;
+      chip.addEventListener('click', () => {
+        if (sendBtn.disabled) return;
+        input.value = sugg;
+        send();
+      });
+      wrap.appendChild(chip);
+    });
+    messagesEl.appendChild(wrap);
+    window.scrollTo(0, document.body.scrollHeight);
+  }
+
   async function send(){
     const text = input.value.trim();
     if (!text) return;
@@ -1070,6 +1130,9 @@
         history.push({ role: 'assistant', content: data.reply });
         persist();
         appendBubble('assistant', data.reply);
+        if (Array.isArray(data.suggestions) && data.suggestions.length) {
+          appendSuggestionChips(data.suggestions);
+        }
       }
     } catch (err) {
       hideTyping();
@@ -1195,6 +1258,19 @@
   });
 
   aboutBtn.addEventListener('click', () => aboutOverlay.classList.add('show'));
+
+  function applyTheme(){
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    themeBtn.title = THEME_NAMES[lang][currentTheme];
+    themeBtn.setAttribute('aria-label', THEME_NAMES[lang][currentTheme]);
+  }
+  themeBtn.addEventListener('click', () => {
+    const idx = THEMES.indexOf(currentTheme);
+    currentTheme = THEMES[(idx + 1) % THEMES.length];
+    localStorage.setItem(THEME_KEY, currentTheme);
+    applyTheme();
+  });
+  applyTheme();
   aboutClose.addEventListener('click', () => aboutOverlay.classList.remove('show'));
   aboutOverlay.addEventListener('click', (e) => {
     if (e.target === aboutOverlay) aboutOverlay.classList.remove('show');
